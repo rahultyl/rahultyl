@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Generate the self-hosted GitHub overview card as an SVG.
+"""Generate the self-hosted GitHub overview card as SVGs (light + dark).
 
 Uses only the REST API and the public contributions page (the Actions
 GITHUB_TOKEN erratically rejects GraphQL and returns empty search results;
 last-known-good search numbers are cached in assets/stats.json so a
 degraded run can refresh the calendar without writing zeros).
-Writes assets/overview.svg.
+Writes assets/overview-light.svg and assets/overview-dark.svg.
 """
 import datetime
 import json
@@ -17,15 +17,19 @@ import urllib.request
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
 USER = os.environ.get("USERNAME", "rahultyl")
 CACHE = "assets/stats.json"
-
-# palette — dark panel, single accent, neutral inks
-SURFACE = "#16161e"
-BORDER = "#262939"
-INK = "#e6e9f5"
-INK_2 = "#9aa1c0"
-INK_MUTED = "#626880"
-ACCENT = "#7aa2f7"
 FONT = "'Segoe UI', Ubuntu, Helvetica, Arial, sans-serif"
+
+# Theme-adaptive palettes; single gradient accent, neutral inks.
+DARK = {
+    "surface": "#16161e", "border": "#262939",
+    "ink": "#e6e9f5", "ink2": "#9aa1c0", "muted": "#626880",
+    "grad_a": "#7aa2f7", "grad_b": "#bb9af7",
+}
+LIGHT = {
+    "surface": "#ffffff", "border": "#e2e6f0",
+    "ink": "#1a1f36", "ink2": "#5b6178", "muted": "#8a91ab",
+    "grad_a": "#2563eb", "grad_b": "#7c3aed",
+}
 
 LANG_COLORS = {
     "Python": "#3572A5", "HTML": "#e34c26", "CSS": "#663399", "Shell": "#89e051",
@@ -134,8 +138,8 @@ def fmt(n):
     return f"{n:,}"
 
 
-def sparkline(weeks, x, y, w, h):
-    """Area sparkline of weekly contribution totals."""
+def sparkline(weeks, p, x, y, w, h):
+    """Area sparkline of weekly contribution totals, gradient accent."""
     peak = max(weeks) or 1
     n = len(weeks)
     pts = []
@@ -147,34 +151,26 @@ def sparkline(weeks, x, y, w, h):
     area = f"{x},{y + h} {line} {x + w},{y + h}"
     ex, ey = pts[-1]
     return f"""
-    <defs>
-      <linearGradient id="spark" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="{ACCENT}" stop-opacity="0.35"/>
-        <stop offset="100%" stop-color="{ACCENT}" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-    <polygon points="{area}" fill="url(#spark)"/>
-    <polyline points="{line}" fill="none" stroke="{ACCENT}" stroke-width="2"
+    <polygon points="{area}" fill="url(#fade)"/>
+    <polyline points="{line}" fill="none" stroke="url(#accent)" stroke-width="2"
       stroke-linejoin="round" stroke-linecap="round"/>
-    <circle cx="{ex:.1f}" cy="{ey:.1f}" r="3.5" fill="{ACCENT}" stroke="{SURFACE}" stroke-width="2"/>"""
+    <circle cx="{ex:.1f}" cy="{ey:.1f}" r="3.5" fill="{p["grad_b"]}" stroke="{p["surface"]}" stroke-width="2"/>"""
 
 
-def overview_card(d):
+def overview_card(d, p):
     W, H = 846, 232
-    tiles = [
+    rows = [
         ("PULL REQUESTS", d["prs"]),
-        ("COMMITS", d["commits"]),
         ("ISSUES", d["issues"]),
         ("REPOS", d["contributed"]),
     ]
-    tile_svg = ""
-    for i, (label, val) in enumerate(tiles):
-        tx = 560 + (i % 2) * 150
-        ty = 88 + (i // 2) * 66
-        tile_svg += (
-            f'<text x="{tx}" y="{ty}" fill="{INK}" font-size="24" font-weight="600" '
+    row_svg = ""
+    for i, (label, val) in enumerate(rows):
+        ry = 96 + i * 40
+        row_svg += (
+            f'<text x="560" y="{ry}" fill="{p["muted"]}" font-size="10" font-weight="600" letter-spacing="1">{label}</text>'
+            f'<text x="814" y="{ry}" fill="{p["ink"]}" font-size="20" font-weight="600" text-anchor="end" '
             f'style="font-variant-numeric: tabular-nums">{fmt(val)}</text>'
-            f'<text x="{tx}" y="{ty + 18}" fill="{INK_MUTED}" font-size="10" letter-spacing="1">{label}</text>'
         )
 
     # language strip: 2px gaps, GitHub language colors, labels in ink
@@ -192,19 +188,33 @@ def overview_card(d):
         pct = 100 * size / total_size
         strip += (
             f'<circle cx="{lx}" cy="{strip_y + 3}" r="4" fill="{LANG_COLORS.get(name, "#8b949e")}"/>'
-            f'<text x="{lx + 10}" y="{strip_y + 7}" fill="{INK_2}" font-size="11">{name} {pct:.0f}%</text>'
+            f'<text x="{lx + 10}" y="{strip_y + 7}" fill="{p["ink2"]}" font-size="11">{name} {pct:.0f}%</text>'
         )
         lx += 10 + 7 * len(f"{name} {pct:.0f}%") + 18
 
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="{d["name"]}: {fmt(d["total"])} contributions in the last year">
-  <rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="10" fill="{SURFACE}" stroke="{BORDER}"/>
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="{p["grad_a"]}"/>
+      <stop offset="100%" stop-color="{p["grad_b"]}"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="{p["grad_a"]}" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="{p["grad_b"]}" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="hero" x1="32" y1="0" x2="300" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="{p["grad_a"]}"/>
+      <stop offset="100%" stop-color="{p["grad_b"]}"/>
+    </linearGradient>
+  </defs>
+  <rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="10" fill="{p["surface"]}" stroke="{p["border"]}"/>
   <g font-family="{FONT}">
-    <text x="32" y="44" fill="{INK_MUTED}" font-size="10" font-weight="600" letter-spacing="1.5">CONTRIBUTIONS · LAST 12 MONTHS</text>
-    <text x="32" y="92" fill="{INK}" font-size="42" font-weight="700" style="font-variant-numeric: tabular-nums">{fmt(d["total"])}</text>
-    {sparkline(d["weeks"], 32, 108, 448, 60)}
-    <line x1="524" y1="36" x2="524" y2="196" stroke="{BORDER}"/>
-    <text x="560" y="44" fill="{INK_MUTED}" font-size="10" font-weight="600" letter-spacing="1.5">LAST YEAR · PUBLIC</text>
-    {tile_svg}
+    <text x="32" y="44" fill="{p["muted"]}" font-size="10" font-weight="600" letter-spacing="1.5">CONTRIBUTIONS · LAST 12 MONTHS</text>
+    <text x="32" y="92" fill="url(#hero)" font-size="42" font-weight="700" style="font-variant-numeric: tabular-nums">{fmt(d["total"])}</text>
+    {sparkline(d["weeks"], p, 32, 108, 448, 60)}
+    <line x1="524" y1="36" x2="524" y2="196" stroke="{p["border"]}"/>
+    <text x="560" y="44" fill="{p["muted"]}" font-size="10" font-weight="600" letter-spacing="1.5">LAST YEAR · PUBLIC</text>
+    {row_svg}
     {strip}
   </g>
 </svg>
@@ -214,12 +224,13 @@ def overview_card(d):
 def main():
     d = collect()
     os.makedirs("assets", exist_ok=True)
-    with open("assets/overview.svg", "w") as f:
-        f.write(overview_card(d))
+    with open("assets/overview-light.svg", "w") as f:
+        f.write(overview_card(d, LIGHT))
+    with open("assets/overview-dark.svg", "w") as f:
+        f.write(overview_card(d, DARK))
     with open(CACHE, "w") as f:
         json.dump({k: d[k] for k in ("commits", "prs", "issues", "contributed")}, f)
-    print(f"wrote overview: {json.dumps({k: v for k, v in d.items() if k not in ('langs', 'weeks')})}")
-    print(f"weeks: {len(d['weeks'])} buckets, peak {max(d['weeks'])}")
+    print(f"wrote overview cards: {json.dumps({k: v for k, v in d.items() if k not in ('langs', 'weeks')})}")
 
 
 if __name__ == "__main__":
