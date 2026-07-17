@@ -139,7 +139,8 @@ def fmt(n):
 
 
 def sparkline(weeks, p, x, y, w, h):
-    """Area sparkline of weekly contribution totals, gradient accent."""
+    """Animated area sparkline: the line draws itself in, the area fades
+    up behind it, and the endpoint dot pulses like a live indicator."""
     peak = max(weeks) or 1
     n = len(weeks)
     pts = []
@@ -147,14 +148,40 @@ def sparkline(weeks, p, x, y, w, h):
         px = x + w * i / max(n - 1, 1)
         py = y + h - (h - 2) * v / peak
         pts.append((px, py))
+    length = sum(
+        ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+        for (x1, y1), (x2, y2) in zip(pts, pts[1:])
+    )
     line = " ".join(f"{px:.1f},{py:.1f}" for px, py in pts)
     area = f"{x},{y + h} {line} {x + w},{y + h}"
     ex, ey = pts[-1]
     return f"""
-    <polygon points="{area}" fill="url(#fade)"/>
-    <polyline points="{line}" fill="none" stroke="url(#accent)" stroke-width="2"
+    <style>
+      .line {{ stroke-dasharray: {length:.0f}; stroke-dashoffset: {length:.0f};
+        animation: draw 2.4s ease-out forwards; }}
+      .area {{ opacity: 0; animation: rise 1s ease-out 1.5s forwards; }}
+      .dot {{ opacity: 0; animation: pop 0.4s ease-out 2.3s forwards; }}
+      .ping {{ transform-origin: {ex:.1f}px {ey:.1f}px;
+        animation: ping 2s ease-out 2.8s infinite; opacity: 0; }}
+      @keyframes draw {{ to {{ stroke-dashoffset: 0; }} }}
+      @keyframes rise {{ to {{ opacity: 1; }} }}
+      @keyframes pop {{ to {{ opacity: 1; }} }}
+      @keyframes ping {{
+        0% {{ opacity: 0.7; transform: scale(0.4); }}
+        70% {{ opacity: 0; transform: scale(2.4); }}
+        100% {{ opacity: 0; transform: scale(2.4); }}
+      }}
+      @media (prefers-reduced-motion: reduce) {{
+        .line {{ stroke-dasharray: none; stroke-dashoffset: 0; animation: none; }}
+        .area, .dot {{ opacity: 1; animation: none; }}
+        .ping {{ animation: none; opacity: 0; }}
+      }}
+    </style>
+    <polygon class="area" points="{area}" fill="url(#fade)"/>
+    <polyline class="line" points="{line}" fill="none" stroke="url(#accent)" stroke-width="2"
       stroke-linejoin="round" stroke-linecap="round"/>
-    <circle cx="{ex:.1f}" cy="{ey:.1f}" r="3.5" fill="{p["grad_b"]}" stroke="{p["surface"]}" stroke-width="2"/>"""
+    <circle class="ping" cx="{ex:.1f}" cy="{ey:.1f}" r="6" fill="none" stroke="{p["grad_b"]}" stroke-width="1.5"/>
+    <circle class="dot" cx="{ex:.1f}" cy="{ey:.1f}" r="3.5" fill="{p["grad_b"]}" stroke="{p["surface"]}" stroke-width="2"/>"""
 
 
 def overview_card(d, p):
