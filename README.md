@@ -37,12 +37,8 @@ Engineer & builder — I design **real-time Voice AI systems** and the backends 
 
 <div align="center">
 
-<img src="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=rahultyl&theme=tokyonight" alt="Profile details" />
-
-<br>
-
-<img height="180" src="https://github-profile-summary-cards.vercel.app/api/cards/stats?username=rahultyl&theme=tokyonight" alt="GitHub stats" />
-<img height="180" src="https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=rahultyl&theme=tokyonight" alt="Top languages by repo" />
+<img height="205" src="assets/stats.svg" alt="GitHub stats" />
+<img height="205" src="assets/langs.svg" alt="Most used languages" />
 
 <br><br>
 
