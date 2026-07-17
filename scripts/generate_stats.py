@@ -27,7 +27,6 @@ query($login: String!) {
     name
     contributionsCollection {
       totalCommitContributions
-      restrictedContributionsCount
       totalPullRequestContributions
       totalIssueContributions
       contributionCalendar { totalContributions }
@@ -35,6 +34,16 @@ query($login: String!) {
     repositoriesContributedTo(first: 1, contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) {
       totalCount
     }
+  }
+}
+"""
+
+# The Actions app token is forbidden from reading restrictedContributionsCount
+# (private-contribution total); fetch it separately and fall back to 0.
+QUERY_RESTRICTED = """
+query($login: String!) {
+  user(login: $login) {
+    contributionsCollection { restrictedContributionsCount }
   }
 }
 """
@@ -75,7 +84,7 @@ def fmt(n):
 
 def stats_card(user):
     cc = user["contributionsCollection"]
-    commits = cc["totalCommitContributions"] + cc["restrictedContributionsCount"]
+    commits = cc["totalCommitContributions"] + user["restricted"]
     total = cc["contributionCalendar"]["totalContributions"]
     stars = sum(r["stargazerCount"] for r in user["repositories"]["nodes"])
     rows = [
@@ -161,6 +170,11 @@ def langs_card(user):
 def main():
     user = gql(QUERY_CONTRIB, {"login": USER})["user"]
     user["repositories"] = gql(QUERY_REPOS, {"login": USER})["user"]["repositories"]
+    try:
+        user["restricted"] = gql(QUERY_RESTRICTED, {"login": USER})["user"][
+            "contributionsCollection"]["restrictedContributionsCount"]
+    except SystemExit:
+        user["restricted"] = 0
     os.makedirs("assets", exist_ok=True)
     with open("assets/stats.svg", "w") as f:
         f.write(stats_card(user))
