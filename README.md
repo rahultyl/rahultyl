@@ -37,8 +37,8 @@ Engineer & builder — I design **real-time Voice AI systems** and the backends 
 <br><br>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/activity-dark.svg">
-  <img width="846" src="assets/activity-light.svg" alt="Daily contribution activity, last 30 days" />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/activity-dark.svg?v=2">
+  <img width="846" src="assets/activity-light.svg?v=2" alt="Daily contribution activity, last 30 days" />
 </picture>
 
 </div>
