@@ -21,7 +21,7 @@ Engineer & builder — I design **real-time Voice AI systems** and the backends 
 
 <div align="center">
 
-<img height="48" src="https://skillicons.dev/icons?i=python,django,postgres,redis,aws,terraform" alt="Python, Django, PostgreSQL, Redis, AWS, Terraform" /> <img height="48" src="assets/chip-pipecat.svg" alt="Pipecat — Voice AI Orchestration" />
+<img height="48" src="https://skillicons.dev/icons?i=python,django,postgres,redis,aws,terraform&theme=light" alt="Python, Django, PostgreSQL, Redis, AWS, Terraform" /> <img height="48" src="assets/chip-pipecat.svg" alt="Pipecat — Voice AI Orchestration" />
 
 </div>
 
