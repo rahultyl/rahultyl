@@ -64,9 +64,9 @@ Engineer & builder — I design **real-time Voice AI systems** and the backends 
 
 <div align="center">
 
-<a href="mailto:rahultayal816@gmail.com"><img src="https://img.shields.io/badge/Gmail-rahultayal816-ea4335?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" /></a>
-<a href="https://www.linkedin.com/in/rahul-tayal-007467197"><img src="https://img.shields.io/badge/LinkedIn-Rahul_Tayal-0a66c2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
-<a href="https://x.com/its_tayal"><img src="https://img.shields.io/badge/X-@its__tayal-000000?style=for-the-badge&logo=x&logoColor=white" alt="X" /></a>
-<a href="https://rtayal.substack.com"><img src="https://img.shields.io/badge/Substack-rtayal-ff6719?style=for-the-badge&logo=substack&logoColor=white" alt="Substack" /></a>
+<a href="mailto:rahultayal816@gmail.com"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/connect-gmail-dark.svg"><img height="40" src="assets/connect-gmail-light.svg" alt="Email: rahultayal816@gmail.com" /></picture></a>&nbsp;
+<a href="https://www.linkedin.com/in/rahul-tayal-007467197"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/connect-linkedin-dark.svg"><img height="40" src="assets/connect-linkedin-light.svg" alt="LinkedIn: Rahul Tayal" /></picture></a>&nbsp;
+<a href="https://x.com/its_tayal"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/connect-x-dark.svg"><img height="40" src="assets/connect-x-light.svg" alt="X: @its_tayal" /></picture></a>&nbsp;
+<a href="https://rtayal.substack.com"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/connect-substack-dark.svg"><img height="40" src="assets/connect-substack-light.svg" alt="Substack: rtayal" /></picture></a>
 
 </div>

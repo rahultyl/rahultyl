@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="40" viewBox="0 0 120 40" role="img" aria-label="Substack">
+  <rect x="0.5" y="0.5" width="119" height="39" rx="10" fill="#16161e" stroke="#262939"/>
+  <g transform="translate(16, 11.0) scale(0.75)">
+    <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z" fill="#FF6719"/>
+  </g>
+  <text x="43" y="25.0" font-family="'Segoe UI', Ubuntu, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#e6e9f5">Substack</text>
+</svg>

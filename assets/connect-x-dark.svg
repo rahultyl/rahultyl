@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="67" height="40" viewBox="0 0 67 40" role="img" aria-label="X">
+  <rect x="0.5" y="0.5" width="66" height="39" rx="10" fill="#16161e" stroke="#262939"/>
+  <g transform="translate(16, 11.0) scale(0.75)">
+    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" fill="#e6e9f5"/>
+  </g>
+  <text x="43" y="25.0" font-family="'Segoe UI', Ubuntu, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="600" fill="#e6e9f5">X</text>
+</svg>
