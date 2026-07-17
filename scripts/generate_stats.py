@@ -19,7 +19,9 @@ VALUE = "#d6e4fd"
 TRACK = "#2b2d42"
 FONT = "'Segoe UI', Ubuntu, Helvetica, Arial, sans-serif"
 
-QUERY = """
+# Split into two queries: the Actions GITHUB_TOKEN has tighter GraphQL
+# resource limits than a personal token, and the combined query exceeds them.
+QUERY_CONTRIB = """
 query($login: String!) {
   user(login: $login) {
     name
@@ -33,11 +35,18 @@ query($login: String!) {
     repositoriesContributedTo(first: 1, contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) {
       totalCount
     }
-    repositories(first: 100, ownerAffiliations: OWNER) {
+  }
+}
+"""
+
+QUERY_REPOS = """
+query($login: String!) {
+  user(login: $login) {
+    repositories(first: 50, ownerAffiliations: OWNER) {
       nodes {
         stargazerCount
         isFork
-        languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
+        languages(first: 5, orderBy: {field: SIZE, direction: DESC}) {
           edges { size node { name color } }
         }
       }
@@ -150,7 +159,8 @@ def langs_card(user):
 
 
 def main():
-    user = gql(QUERY, {"login": USER})["user"]
+    user = gql(QUERY_CONTRIB, {"login": USER})["user"]
+    user["repositories"] = gql(QUERY_REPOS, {"login": USER})["user"]["repositories"]
     os.makedirs("assets", exist_ok=True)
     with open("assets/stats.svg", "w") as f:
         f.write(stats_card(user))
