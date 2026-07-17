@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="205" viewBox="0 0 320 205" role="img" aria-label="Most used languages">
-  <rect width="320" height="205" rx="6" fill="#1a1b27"/>
-  <g font-family="'Segoe UI', Ubuntu, Helvetica, Arial, sans-serif">
-    <text x="25" y="38" fill="#70a5fd" font-size="17" font-weight="700">Most Used Languages</text>
-    <clipPath id="bar"><rect x="25" y="55" width="270" height="10" rx="5"/></clipPath><g clip-path="url(#bar)"><rect x="25.0" y="55" width="271.0" height="10" fill="#3572A5"/></g>
-    <circle cx="25" cy="88" r="5" fill="#3572A5"/><text x="37" y="92" fill="#a9b1d6" font-size="12">Python <tspan fill="#d6e4fd" font-weight="600">100.0%</tspan></text>
-  </g>
-</svg>

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Generate self-hosted GitHub stat cards (tokyonight theme) as SVGs.
+"""Generate the self-hosted GitHub overview card as an SVG.
 
-Uses only the REST API and the public contributions page — the Actions
-GITHUB_TOKEN erratically rejects GraphQL contributionsCollection queries
-with RESOURCE_LIMITS_EXCEEDED, so GraphQL is avoided entirely.
-Writes assets/stats.svg and assets/langs.svg.
+Uses only the REST API and the public contributions page (the Actions
+GITHUB_TOKEN erratically rejects GraphQL and returns empty search results;
+last-known-good search numbers are cached in assets/stats.json so a
+degraded run can refresh the calendar without writing zeros).
+Writes assets/overview.svg.
 """
 import datetime
 import json
@@ -15,13 +16,15 @@ import urllib.request
 
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
 USER = os.environ.get("USERNAME", "rahultyl")
+CACHE = "assets/stats.json"
 
-BG = "#1a1b27"
-TITLE = "#70a5fd"
-TEXT = "#a9b1d6"
-ICON = "#bf91f3"
-VALUE = "#d6e4fd"
-TRACK = "#2b2d42"
+# palette — dark panel, single accent, neutral inks
+SURFACE = "#16161e"
+BORDER = "#262939"
+INK = "#e6e9f5"
+INK_2 = "#9aa1c0"
+INK_MUTED = "#626880"
+ACCENT = "#7aa2f7"
 FONT = "'Segoe UI', Ubuntu, Helvetica, Arial, sans-serif"
 
 LANG_COLORS = {
@@ -56,15 +59,37 @@ def search(url):
     return data
 
 
+def weekly_calendar(page):
+    """Parse the contribution calendar into weekly totals (oldest→newest)."""
+    days = {}
+    for m in re.finditer(r'<td[^>]*class="ContributionCalendar-day"[^>]*>', page):
+        tag = m.group(0)
+        i = re.search(r'id="([^"]+)"', tag)
+        d = re.search(r'data-date="([\d-]+)"', tag)
+        lv = re.search(r'data-level="(\d)"', tag)
+        if i and d:
+            days[i.group(1)] = [d.group(1), int(lv.group(1)) if lv else 0]
+    counts = {}
+    for m in re.finditer(r"<tool-tip[^>]*for=\"([^\"]+)\"[^>]*>([^<]*)</tool-tip>", page):
+        tid, text = m.groups()
+        c = re.match(r"\s*([\d,]+|No)\s+contribution", text)
+        if tid in days and c:
+            counts[tid] = 0 if c.group(1) == "No" else int(c.group(1).replace(",", ""))
+    seq = sorted((date, counts.get(tid, level)) for tid, (date, level) in days.items())
+    daily = [n for _, n in seq]
+    return [sum(daily[i:i + 7]) for i in range(0, len(daily), 7)] or [0]
+
+
 def collect():
     profile = get(f"https://api.github.com/users/{USER}")
     repos = get(f"https://api.github.com/users/{USER}/repos?per_page=100&type=owner")
 
-    # Total contributions from the public contributions page (this also
-    # reflects the "include private contributions" profile setting).
+    # Public contributions page — also reflects the "include private
+    # contributions" profile setting, and works with no token at all.
     page = get(f"https://github.com/users/{USER}/contributions")
     m = re.search(r"([\d,]+)\s+contributions?\s+in the last year", page)
     total = int(m.group(1).replace(",", "")) if m else 0
+    weeks = weekly_calendar(page)
 
     since = (datetime.date.today() - datetime.timedelta(days=365)).isoformat()
     commit_search = search(
@@ -76,18 +101,27 @@ def collect():
     issues = search(f"https://api.github.com/search/issues?q=author:{USER}+type:issue").get("total_count", 0)
 
     if total and not (commits or prs):
-        raise SystemExit("search results look degraded; refusing to write stale-worse cards")
+        # Degraded search (Actions app token): fall back to cached numbers
+        # rather than rendering zeros; hard-fail with no cache to fall on.
+        try:
+            with open(CACHE) as f:
+                cached = json.load(f)
+            commits, prs = cached["commits"], cached["prs"]
+            issues, contributed = cached["issues"], cached["contributed"]
+        except (OSError, KeyError, ValueError):
+            raise SystemExit("search degraded and no cache; refusing to write zeros")
 
-    sizes, names = {}, [r for r in repos if not r["fork"]] or repos
-    for repo in names:
+    sizes = {}
+    lang_repos = [r for r in repos if not r["fork"]] or repos
+    for repo in lang_repos:
         for lang, size in get(f"https://api.github.com/repos/{repo['full_name']}/languages").items():
             sizes[lang] = sizes.get(lang, 0) + size
-    langs = sorted(sizes.items(), key=lambda kv: -kv[1])[:6]
+    langs = sorted(sizes.items(), key=lambda kv: -kv[1])[:5]
 
     return {
         "name": profile.get("name") or USER,
-        "stars": sum(r["stargazers_count"] for r in repos),
         "total": total,
+        "weeks": weeks,
         "commits": commits,
         "prs": prs,
         "issues": issues,
@@ -100,86 +134,92 @@ def fmt(n):
     return f"{n:,}"
 
 
-def stats_card(d):
-    rows = [
-        ("★", "Total Stars Earned", d["stars"]),
-        ("⏱", "Commits (last year)", d["commits"]),
-        ("⇄", "Pull Requests", d["prs"]),
-        ("◉", "Issues", d["issues"]),
-        ("◫", "Contributed to", d["contributed"]),
+def sparkline(weeks, x, y, w, h):
+    """Area sparkline of weekly contribution totals."""
+    peak = max(weeks) or 1
+    n = len(weeks)
+    pts = []
+    for i, v in enumerate(weeks):
+        px = x + w * i / max(n - 1, 1)
+        py = y + h - (h - 2) * v / peak
+        pts.append((px, py))
+    line = " ".join(f"{px:.1f},{py:.1f}" for px, py in pts)
+    area = f"{x},{y + h} {line} {x + w},{y + h}"
+    ex, ey = pts[-1]
+    return f"""
+    <defs>
+      <linearGradient id="spark" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="{ACCENT}" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="{ACCENT}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <polygon points="{area}" fill="url(#spark)"/>
+    <polyline points="{line}" fill="none" stroke="{ACCENT}" stroke-width="2"
+      stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="{ex:.1f}" cy="{ey:.1f}" r="3.5" fill="{ACCENT}" stroke="{SURFACE}" stroke-width="2"/>"""
+
+
+def overview_card(d):
+    W, H = 846, 232
+    tiles = [
+        ("PULL REQUESTS", d["prs"]),
+        ("COMMITS", d["commits"]),
+        ("ISSUES", d["issues"]),
+        ("REPOS", d["contributed"]),
     ]
-    row_svg = ""
-    for i, (icon, label, val) in enumerate(rows):
-        y = 70 + i * 26
-        row_svg += (
-            f'<text x="25" y="{y}" fill="{ICON}" font-size="14">{icon}</text>'
-            f'<text x="50" y="{y}" fill="{TEXT}" font-size="14">{label}:</text>'
-            f'<text x="250" y="{y}" fill="{VALUE}" font-size="14" font-weight="600" text-anchor="end">{fmt(val)}</text>'
-        )
-    circumference = 2 * 3.14159 * 40
-    dash = circumference * 0.72
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="450" height="205" viewBox="0 0 450 205" role="img" aria-label="GitHub stats">
-  <rect width="450" height="205" rx="6" fill="{BG}"/>
-  <g font-family="{FONT}">
-    <text x="25" y="38" fill="{TITLE}" font-size="17" font-weight="700">{d["name"]}&#8217;s GitHub Stats</text>
-    {row_svg}
-    <circle cx="360" cy="125" r="40" fill="none" stroke="{TRACK}" stroke-width="7"/>
-    <circle cx="360" cy="125" r="40" fill="none" stroke="{ICON}" stroke-width="7"
-      stroke-linecap="round" stroke-dasharray="{dash:.1f} {circumference:.1f}"
-      transform="rotate(-90 360 125)"/>
-    <text x="360" y="122" fill="{VALUE}" font-size="20" font-weight="700" text-anchor="middle">{fmt(d["total"])}</text>
-    <text x="360" y="140" fill="{TEXT}" font-size="10" text-anchor="middle">contributions</text>
-    <text x="360" y="152" fill="{TEXT}" font-size="10" text-anchor="middle">last year</text>
-  </g>
-</svg>
-"""
-
-
-def langs_card(d):
-    top = d["langs"]
-    total = sum(v for _, v in top) or 1
-
-    bar_x, bar_w = 25, 270
-    x = bar_x
-    bar_svg = f'<clipPath id="bar"><rect x="{bar_x}" y="55" width="{bar_w}" height="10" rx="5"/></clipPath><g clip-path="url(#bar)">'
-    for name, size in top:
-        color = LANG_COLORS.get(name, "#8b949e")
-        w = bar_w * size / total
-        bar_svg += f'<rect x="{x:.1f}" y="55" width="{w + 1:.1f}" height="10" fill="{color}"/>'
-        x += w
-    bar_svg += "</g>"
-
-    legend = ""
-    for i, (name, size) in enumerate(top):
-        color = LANG_COLORS.get(name, "#8b949e")
-        col, row = i % 2, i // 2
-        lx, ly = 25 + col * 140, 92 + row * 24
-        pct = 100 * size / total
-        legend += (
-            f'<circle cx="{lx}" cy="{ly - 4}" r="5" fill="{color}"/>'
-            f'<text x="{lx + 12}" y="{ly}" fill="{TEXT}" font-size="12">{name} '
-            f'<tspan fill="{VALUE}" font-weight="600">{pct:.1f}%</tspan></text>'
+    tile_svg = ""
+    for i, (label, val) in enumerate(tiles):
+        tx = 560 + (i % 2) * 150
+        ty = 88 + (i // 2) * 66
+        tile_svg += (
+            f'<text x="{tx}" y="{ty}" fill="{INK}" font-size="24" font-weight="600" '
+            f'style="font-variant-numeric: tabular-nums">{fmt(val)}</text>'
+            f'<text x="{tx}" y="{ty + 18}" fill="{INK_MUTED}" font-size="10" letter-spacing="1">{label}</text>'
         )
 
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="320" height="205" viewBox="0 0 320 205" role="img" aria-label="Most used languages">
-  <rect width="320" height="205" rx="6" fill="{BG}"/>
+    # language strip: 2px gaps, GitHub language colors, labels in ink
+    strip_y, strip_x, strip_w = 196, 32, 300
+    total_size = sum(s for _, s in d["langs"]) or 1
+    x = strip_x
+    strip = f'<clipPath id="strip"><rect x="{strip_x}" y="{strip_y}" width="{strip_w}" height="6" rx="3"/></clipPath><g clip-path="url(#strip)">'
+    for name, size in d["langs"]:
+        w = (strip_w - 2 * (len(d["langs"]) - 1)) * size / total_size
+        strip += f'<rect x="{x:.1f}" y="{strip_y}" width="{w:.1f}" height="6" fill="{LANG_COLORS.get(name, "#8b949e")}"/>'
+        x += w + 2
+    strip += "</g>"
+    lx = strip_x + strip_w + 16
+    for name, size in d["langs"][:3]:
+        pct = 100 * size / total_size
+        strip += (
+            f'<circle cx="{lx}" cy="{strip_y + 3}" r="4" fill="{LANG_COLORS.get(name, "#8b949e")}"/>'
+            f'<text x="{lx + 10}" y="{strip_y + 7}" fill="{INK_2}" font-size="11">{name} {pct:.0f}%</text>'
+        )
+        lx += 10 + 7 * len(f"{name} {pct:.0f}%") + 18
+
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="{d["name"]}: {fmt(d["total"])} contributions in the last year">
+  <rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="10" fill="{SURFACE}" stroke="{BORDER}"/>
   <g font-family="{FONT}">
-    <text x="25" y="38" fill="{TITLE}" font-size="17" font-weight="700">Most Used Languages</text>
-    {bar_svg}
-    {legend}
+    <text x="32" y="44" fill="{INK_MUTED}" font-size="10" font-weight="600" letter-spacing="1.5">CONTRIBUTIONS · LAST 12 MONTHS</text>
+    <text x="32" y="92" fill="{INK}" font-size="42" font-weight="700" style="font-variant-numeric: tabular-nums">{fmt(d["total"])}</text>
+    {sparkline(d["weeks"], 32, 108, 448, 60)}
+    <line x1="524" y1="36" x2="524" y2="196" stroke="{BORDER}"/>
+    <text x="560" y="44" fill="{INK_MUTED}" font-size="10" font-weight="600" letter-spacing="1.5">LAST YEAR · PUBLIC</text>
+    {tile_svg}
+    {strip}
   </g>
 </svg>
 """
 
 
 def main():
-    data = collect()
+    d = collect()
     os.makedirs("assets", exist_ok=True)
-    with open("assets/stats.svg", "w") as f:
-        f.write(stats_card(data))
-    with open("assets/langs.svg", "w") as f:
-        f.write(langs_card(data))
-    print(f"wrote cards: {json.dumps({k: v for k, v in data.items() if k != 'langs'})}")
+    with open("assets/overview.svg", "w") as f:
+        f.write(overview_card(d))
+    with open(CACHE, "w") as f:
+        json.dump({k: d[k] for k in ("commits", "prs", "issues", "contributed")}, f)
+    print(f"wrote overview: {json.dumps({k: v for k, v in d.items() if k not in ('langs', 'weeks')})}")
+    print(f"weeks: {len(d['weeks'])} buckets, peak {max(d['weeks'])}")
 
 
 if __name__ == "__main__":

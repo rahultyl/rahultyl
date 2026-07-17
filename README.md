@@ -37,8 +37,7 @@ Engineer & builder — I design **real-time Voice AI systems** and the backends 
 
 <div align="center">
 
-<img height="205" src="assets/stats.svg" alt="GitHub stats" />
-<img height="205" src="assets/langs.svg" alt="Most used languages" />
+<img width="846" src="assets/overview.svg" alt="Contribution overview: total contributions, weekly activity sparkline, commits, pull requests, issues, and top languages" />
 
 <br><br>
 
