@@ -37,8 +37,8 @@ Engineer & builder — I design **real-time Voice AI systems** and the backends 
 <br><br>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-activity-graph.vercel.app/graph?username=rahultyl&bg_color=0d1117&color=8b949e&line=39d353&point=39d353&area=true&area_color=39d353&hide_border=true&custom_title=Contribution%20Activity">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=rahultyl&bg_color=ffffff&color=57606a&line=2da44e&point=216e39&area=true&area_color=2da44e&hide_border=true&custom_title=Contribution%20Activity" alt="Contribution activity graph" />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/activity-dark.svg">
+  <img width="846" src="assets/activity-light.svg" alt="Daily contribution activity, last 30 days" />
 </picture>
 
 </div>

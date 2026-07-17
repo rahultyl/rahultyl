@@ -81,7 +81,9 @@ def weekly_calendar(page):
             counts[tid] = 0 if c.group(1) == "No" else int(c.group(1).replace(",", ""))
     seq = sorted((date, counts.get(tid, level)) for tid, (date, level) in days.items())
     daily = [n for _, n in seq]
-    return [sum(daily[i:i + 7]) for i in range(0, len(daily), 7)] or [0]
+    weeks = [sum(daily[i:i + 7]) for i in range(0, len(daily), 7)] or [0]
+    last30 = seq[-30:] or [("", 0)]
+    return weeks, last30
 
 
 def collect():
@@ -93,7 +95,7 @@ def collect():
     page = get(f"https://github.com/users/{USER}/contributions")
     m = re.search(r"([\d,]+)\s+contributions?\s+in the last year", page)
     total = int(m.group(1).replace(",", "")) if m else 0
-    weeks = weekly_calendar(page)
+    weeks, last30 = weekly_calendar(page)
 
     since = (datetime.date.today() - datetime.timedelta(days=365)).isoformat()
     commit_search = search(
@@ -131,6 +133,7 @@ def collect():
         "issues": issues,
         "contributed": max(contributed, 1),
         "langs": langs,
+        "daily": last30,
     }
 
 
@@ -248,6 +251,104 @@ def overview_card(d, p):
 """
 
 
+def activity_card(d, p):
+    """Daily contribution graph, last 30 days: smooth gradient line that
+    draws in slowly, per-day dots, pulsing endpoint."""
+    W, H = 846, 300
+    left, right, top, bottom = 40, 806, 76, 240
+    daily = d["daily"]
+    n = len(daily)
+    counts = [c for _, c in daily]
+    peak = max(counts) or 1
+
+    pts = []
+    for i, c in enumerate(counts):
+        px = left + (right - left) * i / max(n - 1, 1)
+        py = bottom - (bottom - top) * c / peak
+        pts.append((px, py))
+
+    # Catmull-Rom -> cubic bezier for a smooth line
+    def ctrl(i):
+        p0 = pts[max(i - 1, 0)]
+        p1, p2 = pts[i], pts[i + 1]
+        p3 = pts[min(i + 2, n - 1)]
+        c1 = (p1[0] + (p2[0] - p0[0]) / 6, min(p1[1] + (p2[1] - p0[1]) / 6, bottom))
+        c2 = (p2[0] - (p3[0] - p1[0]) / 6, min(p2[1] - (p3[1] - p1[1]) / 6, bottom))
+        return c1, c2
+
+    path = f"M {pts[0][0]:.1f},{pts[0][1]:.1f}"
+    for i in range(n - 1):
+        (c1x, c1y), (c2x, c2y) = ctrl(i)
+        path += f" C {c1x:.1f},{c1y:.1f} {c2x:.1f},{c2y:.1f} {pts[i + 1][0]:.1f},{pts[i + 1][1]:.1f}"
+    area = path + f" L {pts[-1][0]:.1f},{bottom} L {pts[0][0]:.1f},{bottom} Z"
+    length = 1.1 * sum(
+        ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+        for (x1, y1), (x2, y2) in zip(pts, pts[1:])
+    )
+    ex, ey = pts[-1]
+
+    dots = "".join(
+        f'<circle class="d" cx="{px:.1f}" cy="{py:.1f}" r="2.5" fill="{p["grad_b"]}"/>'
+        for px, py in pts[:-1]
+    )
+    labels = "".join(
+        f'<text x="{px:.1f}" y="{bottom + 20}" fill="{p["muted"]}" font-size="9" text-anchor="middle">{date[8:].lstrip("0")}</text>'
+        for (date, _), (px, _) in zip(daily, pts)
+    )
+    grid = "".join(
+        f'<line x1="{left}" y1="{y:.1f}" x2="{right}" y2="{y:.1f}" stroke="{p["border"]}" stroke-dasharray="2 4"/>'
+        f'<text x="{left - 8}" y="{y + 3:.1f}" fill="{p["muted"]}" font-size="9" text-anchor="end">{v}</text>'
+        for v, y in ((peak, top), (peak // 2, bottom - (bottom - top) * (peak // 2) / peak), (0, bottom))
+    )
+
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="Daily contributions, last 30 days">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="{p["grad_a"]}"/>
+      <stop offset="100%" stop-color="{p["grad_b"]}"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="{p["grad_a"]}" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="{p["grad_b"]}" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <style>
+    .l {{ stroke-dasharray: {length:.0f}; stroke-dashoffset: {length:.0f};
+      animation: draw 7s ease-in-out forwards; }}
+    .a {{ opacity: 0; animation: rise 1.6s ease-out 5.4s forwards; }}
+    .d {{ opacity: 0; animation: rise 0.8s ease-out 6.4s forwards; }}
+    .dot {{ opacity: 0; animation: rise 0.4s ease-out 7s forwards; }}
+    .ping {{ transform-origin: {ex:.1f}px {ey:.1f}px;
+      animation: ping 2s ease-out 7.4s infinite; opacity: 0; }}
+    @keyframes draw {{ to {{ stroke-dashoffset: 0; }} }}
+    @keyframes rise {{ to {{ opacity: 1; }} }}
+    @keyframes ping {{
+      0% {{ opacity: 0.7; transform: scale(0.4); }}
+      70% {{ opacity: 0; transform: scale(2.4); }}
+      100% {{ opacity: 0; transform: scale(2.4); }}
+    }}
+    @media (prefers-reduced-motion: reduce) {{
+      .l {{ stroke-dasharray: none; stroke-dashoffset: 0; animation: none; }}
+      .a, .d, .dot {{ opacity: 1; animation: none; }}
+      .ping {{ animation: none; opacity: 0; }}
+    }}
+  </style>
+  <rect x="0.5" y="0.5" width="{W - 1}" height="{H - 1}" rx="10" fill="{p["surface"]}" stroke="{p["border"]}"/>
+  <g font-family="{FONT}">
+    <text x="32" y="44" fill="{p["muted"]}" font-size="10" font-weight="600" letter-spacing="1.5">CONTRIBUTION ACTIVITY · LAST 30 DAYS</text>
+    {grid}
+    <path class="a" d="{area}" fill="url(#fade)"/>
+    <path class="l" d="{path}" fill="none" stroke="url(#accent)" stroke-width="2.5"
+      stroke-linejoin="round" stroke-linecap="round"/>
+    {dots}
+    <circle class="ping" cx="{ex:.1f}" cy="{ey:.1f}" r="6" fill="none" stroke="{p["grad_b"]}" stroke-width="1.5"/>
+    <circle class="dot" cx="{ex:.1f}" cy="{ey:.1f}" r="4" fill="{p["grad_b"]}" stroke="{p["surface"]}" stroke-width="2"/>
+    {labels}
+  </g>
+</svg>
+"""
+
+
 def main():
     d = collect()
     os.makedirs("assets", exist_ok=True)
@@ -255,6 +356,10 @@ def main():
         f.write(overview_card(d, LIGHT))
     with open("assets/overview-dark.svg", "w") as f:
         f.write(overview_card(d, DARK))
+    with open("assets/activity-light.svg", "w") as f:
+        f.write(activity_card(d, LIGHT))
+    with open("assets/activity-dark.svg", "w") as f:
+        f.write(activity_card(d, DARK))
     with open(CACHE, "w") as f:
         json.dump({k: d[k] for k in ("commits", "prs", "issues", "contributed")}, f)
     print(f"wrote overview cards: {json.dumps({k: v for k, v in d.items() if k not in ('langs', 'weeks')})}")
