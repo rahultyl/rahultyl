@@ -352,14 +352,17 @@ def activity_card(d, p):
 def main():
     d = collect()
     os.makedirs("assets", exist_ok=True)
+    # activity graph in GitHub contribution green
+    green_light = {**LIGHT, "grad_a": "#2da44e", "grad_b": "#1a7f37"}
+    green_dark = {**DARK, "grad_a": "#26a641", "grad_b": "#39d353"}
     with open("assets/overview-light.svg", "w") as f:
         f.write(overview_card(d, LIGHT))
     with open("assets/overview-dark.svg", "w") as f:
         f.write(overview_card(d, DARK))
     with open("assets/activity-light.svg", "w") as f:
-        f.write(activity_card(d, LIGHT))
+        f.write(activity_card(d, green_light))
     with open("assets/activity-dark.svg", "w") as f:
-        f.write(activity_card(d, DARK))
+        f.write(activity_card(d, green_dark))
     with open(CACHE, "w") as f:
         json.dump({k: d[k] for k in ("commits", "prs", "issues", "contributed")}, f)
     print(f"wrote overview cards: {json.dumps({k: v for k, v in d.items() if k not in ('langs', 'weeks')})}")
