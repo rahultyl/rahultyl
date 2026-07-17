@@ -10,6 +10,7 @@ import datetime
 import json
 import os
 import re
+import urllib.error
 import urllib.request
 
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
@@ -31,16 +32,28 @@ LANG_COLORS = {
 }
 
 
-def get(url):
+def get(url, auth=True):
     headers = {"User-Agent": USER}
     if "api.github.com" in url:
         headers["Accept"] = "application/vnd.github+json"
-        if TOKEN:
+        if TOKEN and auth:
             headers["Authorization"] = f"Bearer {TOKEN}"
     req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req) as resp:
         body = resp.read().decode()
     return json.loads(body) if "api.github.com" in url else body
+
+
+def search(url):
+    """The Actions app token silently returns empty search results;
+    retry without auth before trusting a zero."""
+    data = get(url)
+    if not data.get("total_count"):
+        try:
+            data = get(url, auth=False)
+        except urllib.error.HTTPError:
+            pass
+    return data
 
 
 def collect():
@@ -54,13 +67,16 @@ def collect():
     total = int(m.group(1).replace(",", "")) if m else 0
 
     since = (datetime.date.today() - datetime.timedelta(days=365)).isoformat()
-    commit_search = get(
+    commit_search = search(
         f"https://api.github.com/search/commits?q=author:{USER}+author-date:%3E{since}&per_page=100"
     )
     commits = commit_search.get("total_count", 0)
     contributed = len({item["repository"]["full_name"] for item in commit_search.get("items", [])})
-    prs = get(f"https://api.github.com/search/issues?q=author:{USER}+type:pr").get("total_count", 0)
-    issues = get(f"https://api.github.com/search/issues?q=author:{USER}+type:issue").get("total_count", 0)
+    prs = search(f"https://api.github.com/search/issues?q=author:{USER}+type:pr").get("total_count", 0)
+    issues = search(f"https://api.github.com/search/issues?q=author:{USER}+type:issue").get("total_count", 0)
+
+    if total and not (commits or prs):
+        raise SystemExit("search results look degraded; refusing to write stale-worse cards")
 
     sizes, names = {}, [r for r in repos if not r["fork"]] or repos
     for repo in names:
