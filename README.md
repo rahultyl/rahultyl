@@ -37,16 +37,12 @@ Engineer & builder — I design **real-time Voice AI systems** and the backends 
 
 <div align="center">
 
-<img height="170" src="https://github-readme-stats.vercel.app/api?username=rahultyl&show_icons=true&count_private=true&hide_border=true&theme=tokyonight&bg_color=1a1b27" alt="GitHub stats" />
-<img height="170" src="https://github-readme-stats.vercel.app/api/top-langs/?username=rahultyl&layout=compact&hide_border=true&theme=tokyonight&bg_color=1a1b27" alt="Top languages" />
+<img src="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=rahultyl&theme=tokyonight" alt="Profile details" />
 
 <br>
 
-<img src="https://streak-stats.demolab.com?user=rahultyl&theme=tokyonight&hide_border=true&background=1A1B27" alt="Contribution streak" />
-
-<br><br>
-
-<img src="https://github-profile-trophy.vercel.app/?username=rahultyl&theme=tokyonight&no-frame=true&column=7&margin-w=8&margin-h=8" alt="GitHub trophies" />
+<img height="180" src="https://github-profile-summary-cards.vercel.app/api/cards/stats?username=rahultyl&theme=tokyonight" alt="GitHub stats" />
+<img height="180" src="https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=rahultyl&theme=tokyonight" alt="Top languages by repo" />
 
 <br><br>
 
