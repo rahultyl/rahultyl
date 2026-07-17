@@ -25,11 +25,8 @@ Engineer & builder — I design **real-time Voice AI systems** and the backends 
 
 <br><br>
 
-<img src="https://img.shields.io/badge/Pipecat-Voice_AI_Orchestration-2f81f7?style=flat-square" alt="Pipecat" />
-<img src="https://img.shields.io/badge/STT_·_TTS_·_VAD-Voice_Pipeline-10b981?style=flat-square" alt="STT TTS VAD" />
-<img src="https://img.shields.io/badge/Celery-Task_Queues-37814a?style=flat-square" alt="Celery" />
-<img src="https://img.shields.io/badge/DRF-REST_APIs-a30000?style=flat-square" alt="Django REST Framework" />
-<img src="https://img.shields.io/badge/Django--Tenants-Multi--tenancy-0c4b33?style=flat-square" alt="Django Tenants" />
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/chip-pipecat-dark.svg"><img height="40" src="assets/chip-pipecat-light.svg" alt="Pipecat — Voice AI Orchestration" /></picture>&nbsp;
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/chip-celery-dark.svg"><img height="40" src="assets/chip-celery-light.svg" alt="Celery — Task Queues" /></picture>
 
 </div>
 
