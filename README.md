@@ -13,7 +13,7 @@
 Engineer & builder — I design **real-time Voice AI systems** and the backends that keep them alive in production at enterprise scale.
 
 - 🎙️ Architected voice bot backends serving **3M+ voice-AI minutes every month** across enterprise deployments
-- 🤝 Worked as a **Forward Deployed Engineer (FDE)** — embedded with major enterprise clients, shipping an inbound Voice AI system handling **50K+ leads/day** with seamless live call transfer
+- 🤝 Worked as a **Forward Deployed Engineer (FDE)** — embedded with major enterprise clients, shipping an inbound Voice AI system handling **150K+ leads/day** with seamless live call transfer
 - 🤖 Engineered Voice AI that **passed the Turing Test** in real customer conversations — tuned latency, turn-taking, and conversational realism
 - ✍️ I write about voice AI and backend engineering on **[Substack](https://rtayal.substack.com)**
 
