@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="846" height="232" viewBox="0 0 846 232" role="img" aria-label="Rahul Tayal: 2,031 contributions in the last year">
+<svg xmlns="http://www.w3.org/2000/svg" width="846" height="232" viewBox="0 0 846 232" role="img" aria-label="Rahul Tayal: 2,054 contributions in the last year">
   <defs>
     <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#2563eb"/>
@@ -16,14 +16,14 @@
   <rect x="0.5" y="0.5" width="845" height="231" rx="10" fill="#ffffff" stroke="#e2e6f0"/>
   <g font-family="'Segoe UI', Ubuntu, Helvetica, Arial, sans-serif">
     <text x="32" y="44" fill="#8a91ab" font-size="10" font-weight="600" letter-spacing="1.5">CONTRIBUTIONS · LAST 12 MONTHS</text>
-    <text x="32" y="92" fill="url(#hero)" font-size="42" font-weight="700" style="font-variant-numeric: tabular-nums">2,031</text>
+    <text x="32" y="92" fill="url(#hero)" font-size="42" font-weight="700" style="font-variant-numeric: tabular-nums">2,054</text>
     
     <style>
-      .line { stroke-dasharray: 837; stroke-dashoffset: 837;
+      .line { stroke-dasharray: 834; stroke-dashoffset: 834;
         animation: draw 2.4s ease-out forwards; }
       .area { opacity: 0; animation: rise 1s ease-out 1.5s forwards; }
       .dot { opacity: 0; animation: pop 0.4s ease-out 2.3s forwards; }
-      .ping { transform-origin: 480.0px 151.5px;
+      .ping { transform-origin: 480.0px 138.4px;
         animation: ping 2s ease-out 2.8s infinite; opacity: 0; }
       @keyframes draw { to { stroke-dashoffset: 0; } }
       @keyframes rise { to { opacity: 1; } }
@@ -39,14 +39,14 @@
         .ping { animation: none; opacity: 0; }
       }
     </style>
-    <polygon class="area" points="32,168 32.0,110.0 40.6,135.0 49.2,152.6 57.8,149.8 66.5,168.0 75.1,158.3 83.7,118.0 92.3,138.4 100.9,135.6 109.5,149.8 118.2,140.1 126.8,138.4 135.4,147.5 144.0,152.6 152.6,163.5 161.2,125.4 169.8,113.4 178.5,140.1 187.1,146.4 195.7,168.0 204.3,157.2 212.9,127.1 221.5,133.3 230.2,152.1 238.8,156.6 247.4,145.8 256.0,149.8 264.6,128.2 273.2,146.4 281.8,141.8 290.5,147.5 299.1,148.1 307.7,136.7 316.3,155.5 324.9,147.5 333.5,134.5 342.2,157.2 350.8,150.4 359.4,135.6 368.0,148.7 376.6,152.1 385.2,168.0 393.8,164.0 402.5,166.3 411.1,162.3 419.7,150.9 428.3,165.7 436.9,148.1 445.5,132.7 454.2,149.2 462.8,145.3 471.4,141.8 480.0,151.5 480,168" fill="url(#fade)"/>
-    <polyline class="line" points="32.0,110.0 40.6,135.0 49.2,152.6 57.8,149.8 66.5,168.0 75.1,158.3 83.7,118.0 92.3,138.4 100.9,135.6 109.5,149.8 118.2,140.1 126.8,138.4 135.4,147.5 144.0,152.6 152.6,163.5 161.2,125.4 169.8,113.4 178.5,140.1 187.1,146.4 195.7,168.0 204.3,157.2 212.9,127.1 221.5,133.3 230.2,152.1 238.8,156.6 247.4,145.8 256.0,149.8 264.6,128.2 273.2,146.4 281.8,141.8 290.5,147.5 299.1,148.1 307.7,136.7 316.3,155.5 324.9,147.5 333.5,134.5 342.2,157.2 350.8,150.4 359.4,135.6 368.0,148.7 376.6,152.1 385.2,168.0 393.8,164.0 402.5,166.3 411.1,162.3 419.7,150.9 428.3,165.7 436.9,148.1 445.5,132.7 454.2,149.2 462.8,145.3 471.4,141.8 480.0,151.5" fill="none" stroke="url(#accent)" stroke-width="2"
+    <polygon class="area" points="32,168 32.0,110.0 40.6,135.0 49.2,152.6 57.8,149.8 66.5,168.0 75.1,158.3 83.7,118.0 92.3,138.4 100.9,135.6 109.5,149.8 118.2,140.1 126.8,138.4 135.4,147.5 144.0,152.6 152.6,163.5 161.2,125.4 169.8,113.4 178.5,140.1 187.1,146.4 195.7,168.0 204.3,157.2 212.9,127.1 221.5,133.3 230.2,152.1 238.8,156.6 247.4,145.8 256.0,149.8 264.6,128.2 273.2,146.4 281.8,141.8 290.5,147.5 299.1,148.1 307.7,136.7 316.3,155.5 324.9,147.5 333.5,134.5 342.2,157.2 350.8,150.4 359.4,135.6 368.0,148.7 376.6,152.1 385.2,168.0 393.8,164.0 402.5,166.3 411.1,162.3 419.7,150.9 428.3,165.7 436.9,148.1 445.5,132.7 454.2,149.2 462.8,145.3 471.4,141.8 480.0,138.4 480,168" fill="url(#fade)"/>
+    <polyline class="line" points="32.0,110.0 40.6,135.0 49.2,152.6 57.8,149.8 66.5,168.0 75.1,158.3 83.7,118.0 92.3,138.4 100.9,135.6 109.5,149.8 118.2,140.1 126.8,138.4 135.4,147.5 144.0,152.6 152.6,163.5 161.2,125.4 169.8,113.4 178.5,140.1 187.1,146.4 195.7,168.0 204.3,157.2 212.9,127.1 221.5,133.3 230.2,152.1 238.8,156.6 247.4,145.8 256.0,149.8 264.6,128.2 273.2,146.4 281.8,141.8 290.5,147.5 299.1,148.1 307.7,136.7 316.3,155.5 324.9,147.5 333.5,134.5 342.2,157.2 350.8,150.4 359.4,135.6 368.0,148.7 376.6,152.1 385.2,168.0 393.8,164.0 402.5,166.3 411.1,162.3 419.7,150.9 428.3,165.7 436.9,148.1 445.5,132.7 454.2,149.2 462.8,145.3 471.4,141.8 480.0,138.4" fill="none" stroke="url(#accent)" stroke-width="2"
       stroke-linejoin="round" stroke-linecap="round"/>
-    <circle class="ping" cx="480.0" cy="151.5" r="6" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
-    <circle class="dot" cx="480.0" cy="151.5" r="3.5" fill="#7c3aed" stroke="#ffffff" stroke-width="2"/>
+    <circle class="ping" cx="480.0" cy="138.4" r="6" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
+    <circle class="dot" cx="480.0" cy="138.4" r="3.5" fill="#7c3aed" stroke="#ffffff" stroke-width="2"/>
     <line x1="524" y1="36" x2="524" y2="196" stroke="#e2e6f0"/>
     <text x="560" y="44" fill="#8a91ab" font-size="10" font-weight="600" letter-spacing="1.5">LAST YEAR · PUBLIC</text>
-    <text x="560" y="96" fill="#8a91ab" font-size="10" font-weight="600" letter-spacing="1">PULL REQUESTS</text><text x="814" y="96" fill="#1a1f36" font-size="20" font-weight="600" text-anchor="end" style="font-variant-numeric: tabular-nums">113</text><text x="560" y="136" fill="#8a91ab" font-size="10" font-weight="600" letter-spacing="1">ISSUES</text><text x="814" y="136" fill="#1a1f36" font-size="20" font-weight="600" text-anchor="end" style="font-variant-numeric: tabular-nums">26</text><text x="560" y="176" fill="#8a91ab" font-size="10" font-weight="600" letter-spacing="1">REPOS</text><text x="814" y="176" fill="#1a1f36" font-size="20" font-weight="600" text-anchor="end" style="font-variant-numeric: tabular-nums">4</text>
+    <text x="560" y="96" fill="#8a91ab" font-size="10" font-weight="600" letter-spacing="1">PULL REQUESTS</text><text x="814" y="96" fill="#1a1f36" font-size="20" font-weight="600" text-anchor="end" style="font-variant-numeric: tabular-nums">0</text><text x="560" y="136" fill="#8a91ab" font-size="10" font-weight="600" letter-spacing="1">ISSUES</text><text x="814" y="136" fill="#1a1f36" font-size="20" font-weight="600" text-anchor="end" style="font-variant-numeric: tabular-nums">3</text><text x="560" y="176" fill="#8a91ab" font-size="10" font-weight="600" letter-spacing="1">REPOS</text><text x="814" y="176" fill="#1a1f36" font-size="20" font-weight="600" text-anchor="end" style="font-variant-numeric: tabular-nums">1</text>
     <clipPath id="strip"><rect x="32" y="196" width="300" height="6" rx="3"/></clipPath><g clip-path="url(#strip)"><rect x="32.0" y="196" width="300.0" height="6" fill="#3572A5"/></g><circle cx="348" cy="199" r="4" fill="#3572A5"/><text x="358" y="203" fill="#5b6178" font-size="11">Python 100%</text>
   </g>
 </svg>
